@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+dist/
+build/
+*.egg-info/
+.env
+.env.*
+.DS_Store
+docs/superpowers/
+launch-thread.md
+shardul-test.md
