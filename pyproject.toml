@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "granoladb"
+version = "0.1.4"
+description = "Store your logs and agent traces in Granola. The meeting-notes app. Yes, really."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "GranolaDB" }]
+keywords = ["observability", "logging", "database", "granola", "satire"]
+dependencies = ["keyring>=24"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: System :: Logging",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/that-guy-wade/granoladb"
+Repository = "https://github.com/that-guy-wade/granoladb"
+
+[project.optional-dependencies]
+otel = ["opentelemetry-sdk>=1.20"]
+login = ["cryptography>=42"]
+capture = ["mitmproxy>=11"]
+dev = ["pytest>=8", "cryptography>=42", "mitmproxy>=11"]
+
+[project.scripts]
+granoladb = "granoladb.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/granoladb"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
