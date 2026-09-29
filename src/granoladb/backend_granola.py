@@ -15,6 +15,15 @@ READ_PATH = "/v1/get-documents"
 WORKSPACES_PATH = "/v1/get-workspaces"
 
 
+def api_headers(token):
+    return {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "X-Client-Version": "6.4.0",
+        "X-Client-Platform": "macOS",
+    }
+
+
 class GranolaBackendError(RuntimeError):
     pass
 
@@ -50,10 +59,7 @@ class GranolaBackend:
         req = urllib.request.Request(
             BASE + path,
             data=json.dumps(payload).encode(),
-            headers={
-                "Authorization": f"Bearer {self._access()}",
-                "Content-Type": "application/json",
-            },
+            headers=api_headers(self._access()),
         )
         try:
             return json.loads(self._http(req).read())

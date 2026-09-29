@@ -64,8 +64,9 @@ We think you should know precisely what this does before running it:
    the `Authorization: Bearer <token>` header off that request, and extracts
    **only** that value (via a mitmproxy addon, written to a local file
    atomically). The redirector is scoped to the Granola process only, and the
-   certificate trust is **removed the moment capture finishes** — it's trusted for
-   only the few seconds of the capture. Hands-off once you confirm.
+   certificate trust added by capture is **removed when capture finishes**. If
+   Granola does not quit when requested, close it fully and rerun capture so the
+   startup sync occurs.
 4. **Where it goes:** stored **locally only** — in your **OS keychain** (macOS
    Keychain / Windows Credential Manager / Freedesktop Secret Service) via the
    `keyring` library. If no keychain backend exists, it falls back to a `0600` file

@@ -59,9 +59,11 @@ def _latest_bearer(flow_path):
 
 
 def _token_is_valid(token):
+    from .backend_granola import api_headers
+
     req = urllib.request.Request(
         WORKSPACES_URL, data=b"{}",
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers=api_headers(token),
     )
     try:
         data = json.loads(urllib.request.urlopen(req, timeout=15).read())
@@ -120,9 +122,6 @@ def _restart_granola(out):
     """Quit Granola fully and reopen it, so its authenticated startup sync fires."""
     out("Restarting Granola to trigger its sync (this reopens the app)...")
     subprocess.run(["osascript", "-e", 'quit app "Granola"'], capture_output=True)
-    time.sleep(2)
-    subprocess.run(["pkill", "-9", "-f", "Granola.app/Contents/MacOS/Granola"],
-                   capture_output=True)
     time.sleep(2)
     subprocess.Popen(["open", "-a", "Granola"],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

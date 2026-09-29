@@ -1,4 +1,7 @@
 # tests/test_capture_macos.py
+import io
+import json
+
 import pytest
 
 pytest.importorskip("mitmproxy")
@@ -52,3 +55,23 @@ def test_capture_token_cancelled_by_user(monkeypatch, tmp_path):
     monkeypatch.setattr(cap.shutil, "which", lambda _: str(fake))
     with pytest.raises(cap.GranolaAuthError, match="cancelled"):
         cap.capture_token(prompt=lambda *_: "n", out=lambda *_: None)
+
+
+def test_token_validation_uses_client_headers(monkeypatch):
+    def fake_open(request, timeout):
+        headers = {key.lower(): value for key, value in request.headers.items()}
+        assert headers["x-client-version"]
+        assert headers["x-client-platform"]
+        return io.BytesIO(json.dumps({"workspaces": [{}]}).encode())
+
+    monkeypatch.setattr(cap.urllib.request, "urlopen", fake_open)
+    assert cap._token_is_valid("AT")
+
+
+def test_restart_quits_and_reopens_without_killing_processes(monkeypatch):
+    calls = []
+    monkeypatch.setattr(cap.subprocess, "run", lambda args, **kwargs: calls.append(args))
+    monkeypatch.setattr(cap.subprocess, "Popen", lambda args, **kwargs: calls.append(args))
+    monkeypatch.setattr(cap.time, "sleep", lambda _: None)
+    cap._restart_granola(lambda _: None)
+    assert [call[0] for call in calls] == ["osascript", "open"]

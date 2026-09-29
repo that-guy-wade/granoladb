@@ -24,6 +24,10 @@ function z(client, path, { input, method, ... }) {
 
 - The `input` object is sent as the **raw JSON body** (no `{input: ...}` envelope).
 - Auth header: **`Authorization: Bearer <accessToken>`**.
+- As of September 2026, requests also need non-empty `X-Client-Version` and
+  `X-Client-Platform` headers. Without them, Granola returns HTTP 200 with
+  `{"message":"Unsupported client"}`. Use the same headers when validating a
+  newly captured token.
 
 ## Write (confirmed by live capture, 2026-08-28)
 
@@ -84,7 +88,7 @@ endpoints; the create/update primary key is `id`.
   also exists in older reverse-engineering notes.) Response is normalized in code
   by reading `docs`/`documents` and each doc's `notes_markdown`/`notes_plain`.
 
-## Auth (decided: env token)
+## Auth
 
 The app sends `Authorization: Bearer <accessToken>`. In this build the token is
 **not** stored in plaintext:
@@ -94,11 +98,10 @@ The app sends `Authorization: Bearer <accessToken>`. In this build the token is
 - Chromium `Cookies` DB — also safeStorage-encrypted on macOS.
 - WorkOS AuthKit (`user_management/sessions`) is the identity provider.
 
-Because there is no plaintext token on disk, **GranolaDB v1 takes the token from
-the `GRANOLA_TOKEN` environment variable** and uses it as the Bearer token. No
-WorkOS exchange and no `client_id` are needed — we reuse the app's existing access
-token. (A future `granoladb login` could decrypt safeStorage for zero-config auth;
-out of scope for v1.)
+GranolaDB reads the token from `GRANOLA_TOKEN`, then the OS keychain, then a legacy
+local token file. On macOS, `granoladb login --capture` can obtain a fresh session
+token from the app's own network request and store it in the keychain. The token
+expires after a few hours, so an HTTP 401 can mean it needs to be captured again.
 
 ## Never commit token values
 

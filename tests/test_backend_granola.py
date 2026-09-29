@@ -78,3 +78,17 @@ def test_dry_run_skips_network(monkeypatch):
 
     b = GranolaBackend(token="AT", http=explode)
     assert b.create_document("t", "body")  # returns a generated id, no network
+
+
+def test_requests_include_client_headers(monkeypatch):
+    monkeypatch.delenv("GRANOLADB_DRY_RUN", raising=False)
+    seen = []
+
+    def fake_http(req):
+        seen.append({k.lower(): v for k, v in req.headers.items()})
+        return io.BytesIO(json.dumps({"workspaces": [{"workspace": {"workspace_id": "ws-1"}}]}).encode())
+
+    GranolaBackend(token="AT", http=fake_http)._resolve_workspace()
+    assert seen[0]["authorization"] == "Bearer AT"
+    assert seen[0]["x-client-version"]
+    assert seen[0]["x-client-platform"]
