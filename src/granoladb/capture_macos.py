@@ -221,7 +221,8 @@ def capture_token(timeout=75, prompt=input, out=print, restart=True, confirm=Tru
                     "Items & Extensions > Network Extensions).")
         elif s["bearer"] == 0:
             hint = (f"mitmproxy saw {s['reqs']} Granola requests but none carried a token "
-                    "(those were background/websocket traffic) — open an EXISTING note.")
+                    "(those were background/websocket traffic) — open an EXISTING note, "
+                    "or force quit Granola and retry if it stays in the background.")
         else:
             hint = f"saw a token in {s['bearer']} request(s) but it didn't validate — try again."
         try:

@@ -65,8 +65,8 @@ We think you should know precisely what this does before running it:
    **only** that value (via a mitmproxy addon, written to a local file
    atomically). The redirector is scoped to the Granola process only, and the
    certificate trust added by capture is **removed when capture finishes**. If
-   Granola does not quit when requested, close it fully and rerun capture so the
-   startup sync occurs.
+   Granola does not quit when requested, force quit it with Activity Monitor and
+   rerun capture so the startup sync occurs.
 4. **Where it goes:** stored **locally only** — in your **OS keychain** (macOS
    Keychain / Windows Credential Manager / Freedesktop Secret Service) via the
    `keyring` library. If no keychain backend exists, it falls back to a `0600` file
