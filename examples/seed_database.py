@@ -4,8 +4,8 @@ Creates one folder containing:
   - table docs (users, orders) rendered as readable tables
   - per-service log docs (backend, frontend, auth, worker)
 
-Every doc is written with real editor content (ydoc), so it shows up in Granola
-AND is answerable by Granola's own AI. Re-running first deletes the previous demo
+Every doc is written with real editor content, so it shows up in Granola
+AND is answerable by Granola's own AI. Re-running first trashes the previous demo
 docs so it stays idempotent. Delete the folder (and its docs) to clean up.
 
 Run:  granoladb login --capture   # fresh token
@@ -13,18 +13,19 @@ Run:  granoladb login --capture   # fresh token
 """
 import gzip
 import json
+import time
 import urllib.error
 import urllib.request
 
-from granoladb.backend_granola import GranolaBackend, BASE
+from granoladb.backend_granola import GranolaBackend, BASE, api_headers
 
-FOLDER_TITLE = "GranolaDB (demo — safe to delete)"
+FOLDER_TITLE = "GranolaDB"
 
 
 def _call(be, path, payload):
     req = urllib.request.Request(
         BASE + path, data=json.dumps(payload).encode(),
-        headers={"Authorization": f"Bearer {be._access()}", "Content-Type": "application/json"},
+        headers=api_headers(be._access()),
     )
     try:
         raw = urllib.request.urlopen(req, timeout=25).read()
@@ -54,7 +55,9 @@ def delete_prior_demo_docs(be, titles):
     n = 0
     for d in arr:
         if d.get("title") in titles:
-            code, _ = _call(be, "/v1/hard-delete-document", {"document_id": d["id"]})
+            code, _ = _call(be, "/v1/update-document", {
+                "id": d["id"], "deleted_at": time.strftime("%Y-%m-%dT%H:%M:%S.000Z", time.gmtime()),
+            })
             if code == 200:
                 n += 1
     return n

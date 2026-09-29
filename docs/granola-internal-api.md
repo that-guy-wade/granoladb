@@ -88,6 +88,12 @@ endpoints; the create/update primary key is `id`.
   also exists in older reverse-engineering notes.) Response is normalized in code
   by reading `docs`/`documents` and each doc's `notes_markdown`/`notes_plain`.
 
+## Delete
+
+Soft-delete a document with `POST /v1/update-document` and an ISO `deleted_at`
+timestamp. Granola rejects `/v1/hard-delete-document` until that step succeeds.
+The demo seeding script uses soft deletion when replacing its own notes.
+
 ## Auth
 
 The app sends `Authorization: Bearer <accessToken>`. In this build the token is
